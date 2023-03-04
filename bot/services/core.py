@@ -1,5 +1,5 @@
 import requests
-from ...config import BACKEND_URL
+from config import BACKEND_URL
 
 
 class InternalServerException(Exception):
