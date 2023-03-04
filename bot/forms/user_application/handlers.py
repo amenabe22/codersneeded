@@ -1,18 +1,21 @@
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
+from ...buttons.main_buttons import CANCEL_FORM
 from telegram.ext import ConversationHandler, ContextTypes, CommandHandler, MessageHandler, filters
 from ...handlers.commands import start, PREVIEW, MESSAGE, CONTACT
 from ...services.core import send_app
 
+cancel_reply_markup = ReplyKeyboardMarkup(CANCEL_FORM, resize_keyboard=True)
+
 
 async def handle_message_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Enter your message for the client here")
+    await update.message.reply_text("Enter your message for the client here", reply_markup=cancel_reply_markup)
     return CONTACT
 
 
 async def handle_contact_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text
     context.user_data["app_message"] = text
-    await update.message.reply_text("Enter a contact here phone number, email, address etc ...")
+    await update.message.reply_text("Enter a contact here phone number, email, address etc ...", reply_markup=cancel_reply_markup)
     return PREVIEW
 
 
@@ -43,5 +46,6 @@ job_application_form_handler = ConversationHandler(
         CONTACT: [MessageHandler(filters.TEXT, handle_contact_input)],
         PREVIEW: [MessageHandler(filters.TEXT, handle_preview_input)],
     },
-    fallbacks=[CommandHandler("cancel", cancel)],
+    fallbacks=[]
+    # fallbacks=[CommandHandler("cancel", cancel)],
 )

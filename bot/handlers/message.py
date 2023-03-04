@@ -12,7 +12,8 @@ def format_post(post):
 async def user_posts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     posts = get_posts(context.user_data["uid"])
     for post in posts:
-        await update.effective_message.reply_text(format_post(post), reply_markup=InlineKeyboardMarkup(get_post_buttons(post['id'])))
+        print(post, "POST")
+        await update.effective_message.reply_text(format_post(post), reply_markup=InlineKeyboardMarkup(get_post_buttons(post['id'], post['messageId'])))
     if not len(posts):
         await update.effective_message.reply_text("You don't have any posts")
 

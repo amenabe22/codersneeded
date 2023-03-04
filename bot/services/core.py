@@ -7,9 +7,33 @@ class InternalServerException(Exception):
     pass
 
 
+def get_cat(cat):
+    try:
+        response = requests.get(f"{TARGET_URL}/cats/{cat}")
+    except Exception as e:
+        raise InternalServerException()
+    return response.json()
+
+
 def get_cats():
     try:
         response = requests.get(f"{TARGET_URL}/cats")
+    except Exception as e:
+        raise InternalServerException()
+    return response.json()
+
+
+def get_post(id):
+    try:
+        response = requests.get(f"{TARGET_URL}/getPost/{id}")
+    except Exception as e:
+        raise InternalServerException()
+    return response.json()
+
+
+def close_post_rq(id):
+    try:
+        response = requests.post(f"{TARGET_URL}/closePost/{id}")
     except Exception as e:
         raise InternalServerException()
     return response.json()
@@ -71,11 +95,9 @@ def approve_jobpost_req(payload):
     return response.json()
 
 
-
 def decline_jobpost_req(payload):
     try:
         response = requests.post(TARGET_URL+"declinePost", json=payload)
     except Exception as e:
         raise InternalServerException()
     return response.json()
-

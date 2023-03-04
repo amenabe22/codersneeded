@@ -63,6 +63,7 @@ model JobPost {
     status      JobPostStatus?
     pay         String?
     location    String?
+    messageId   String?
     poster      User?          @relation(fields: [posterId], references: [id])
     posterId    Int?
     catId       Int?

@@ -11,7 +11,7 @@ prisma.connect()
 
 
 def format_post(post, cat):
-    msg = f"""Job Title: {post.title}\n\nCompany: {post.company}\n\nJob Type: {post.jobType}\n\nDescription:  {post.description}\n\nPayment: {post.pay}\n\nLocation: {post.location}\n\n\n#{cat}"""
+    msg = f"""Job Title: {post.title}\n\nCompany: {post.company}\n\nJob Type: {post.jobType}\n\nDescription:  {post.description}\n\nLocation: {post.location}\n\n\n#{cat}"""
     return msg
 
 
@@ -44,6 +44,12 @@ def createUser():
     return user.dict()
 
 
+@app.route('/cats/<cat>', methods=['GET'])
+def getCat(cat):
+    cat_obj = prisma.jobcategory.find_first(where={'category': cat})
+    return {"cat": True} if cat_obj else {"cat": False}
+
+
 @app.route('/cats', methods=['GET'])
 def getCats():
     cats = prisma.jobcategory.find_many()
@@ -71,24 +77,37 @@ def approvePost():
     post = prisma.jobpost.find_first(where={'id': body['post']})
     body = json.loads(request.data)
     cat = prisma.jobcategory.find_first(where={'id': post.catId})
-    decline_message = f"Your Job post <b>{post.title}</b> is now Live 🚀"
+    approval_message = f"Your Job post <b>{post.title}</b> is now Live 🚀"
     poster = prisma.user.find_first(where={'id': post.posterId})
-    # notify user about approval
-    payload = {"chat_id": poster.userid,
-               "text": decline_message,
-               "disable_notification": False, "parse_mode": "html"}
-    res = requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
-
     # publish on channel
-
     payload = {"chat_id": CHANNEL_ID,
                "text": format_post(post, cat.category), "disable_notification": False,
                "reply_markup": {"inline_keyboard": [[{"text": "Apply", "url": f"https://t.me/cneedtest_bot?start={post.id}"}]]}}
-
     res = requests.post(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
 
+    messageId = res.json()["result"]["message_id"]
+    # update post message id inside channel
+    prisma.jobpost.update(
+        where={
+            'id': post.id,
+        },
+        data={
+            'messageId': str(messageId)
+        },
+    )
+
+    # notify user about approval
+    payload = {"chat_id": poster.userid,
+               "text": approval_message,
+               "disable_notification": False, "parse_mode": "html",
+               "reply_markup": {"inline_keyboard": [[{"text": "👀 Show", "url": f"{CHANNEL_URL}/{messageId}"}]]}}
+    res = requests.post(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
+
+    print("#"*50)
+    print(res.json(), "RES")
+    print("#"*50)
     return res.json()
 
 
@@ -108,6 +127,19 @@ def declinePost():
     return res.json()
 
 
+@app.route('/closePost/<post>', methods=['POST'])
+def closePost(post):
+    prisma.jobpost.update(
+        where={
+            'id': int(post),
+        },
+        data={
+            'status': 'CLOSED'
+        },
+    )
+    return {"closed": True}
+
+
 @app.route('/post', methods=['POST'])
 def addJobPost():
     try:
@@ -124,15 +156,13 @@ def addJobPost():
                 'location': body["location"],
                 'posterId': int(body["posterId"]),
                 'catId': cat.id,
+                'status': 'ACTIVE'
             }
         )
-        # payload = {"chat_id": CHANNEL_ID,
-        #            "text": format_post(post, body['catId']), "disable_notification": False,
-        #            "reply_markup": {"inline_keyboard": [[{"text": "Apply", "url": f"https://t.me/cneedtest_bot?start={post.id}"}]]}}
 
         payload = {"chat_id": MOD_CHAN_ID,
                    "text": format_post(post, body['catId']), "disable_notification": False,
-                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Apply", "callback_data": f"approve_post|{post.id}"},
+                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"approve_post|{post.id}"},
                                                          {"text": "❌ Decline", "callback_data": f"decline_post|{post.id}"}]]}}
         res = requests.post(
             f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
@@ -173,12 +203,12 @@ def addApplication():
         initial_poster = prisma.user.find_first(
             where={'id': initial_post.posterId})
         newapp_msg = f"<b>{applicant.name}</b> Just applied to your post <b>{initial_post.title}</b>\n\n<b>Message from {applicant.name}:</b> {app.message}\n\n<b>Contact:</b> {app.contact}\n\nGood Luck !!"
-        payload = {"chat_id": applicant.userid,
+        payload = {"chat_id": initial_poster.userid,
                    "text": newapp_msg, "disable_notification": False,
                    "parse_mode": "html",
                    "reply_markup": {"inline_keyboard": [[{"text": "🥱 Decline", "callback_data": f"decline_applicant|{app.id}"}]]}}
         res = requests.post(
-           f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
         print("RESPONSE", res.content)
 
         print(initial_post, "POST")
@@ -190,12 +220,23 @@ def addApplication():
     return app.dict()
 
 
+@app.route("/getPost/<id>", methods=['GET'])
+def getPost(id):
+    post = prisma.jobpost.find_first(
+        where={
+            'id': int(id)
+        })
+    return {"post": post.dict()} if post else {"post": None}
+
+
 @app.route("/userposts/<user>", methods=['GET'])
 def userPosts(user):
     try:
         posts = prisma.jobpost.find_many(
+            take=10,
             where={
-                'posterId': int(user)
+                'posterId': int(user),
+                'status': 'ACTIVE'
             })
     except Exception as e:
         raise Exception(e)

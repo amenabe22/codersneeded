@@ -6,3 +6,10 @@ MENU_BUTTONS = [
         KeyboardButton("My Posts")
     ],
 ]
+
+
+CANCEL_FORM = [
+    [
+        KeyboardButton("Cancel"),
+    ],
+]
