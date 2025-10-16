@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Use localhost backend for development
-const API_BASE_URL = 'https://protein-cargo-polo-ash.trycloudflare.com/api'
+const API_BASE_URL = 'https://fighting-guest-near-belts.trycloudflare.com/api'
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
