@@ -119,6 +119,7 @@ export interface AIAnalysis {
   cover_letter_score: number
   completeness_score: number
   relevance_score: number
+  resume_score: number
   ai_summary: string
   strengths: string[]
   concerns: string[]

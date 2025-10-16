@@ -451,11 +451,17 @@ function AIRankedApplicationCard({ rankedApplication, rank }: { rankedApplicatio
       </div>
 
       {/* Score Breakdown */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <div className="bg-white rounded-lg p-2 border border-gray-200">
           <div className="text-xs text-gray-500 mb-1">Cover Letter</div>
           <div className={`text-lg font-bold ${getScoreColor(ai_analysis.cover_letter_score)}`}>
             {ai_analysis.cover_letter_score}
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-2 border border-gray-200">
+          <div className="text-xs text-gray-500 mb-1">Resume</div>
+          <div className={`text-lg font-bold ${getScoreColor(ai_analysis.resume_score)}`}>
+            {ai_analysis.resume_score}
           </div>
         </div>
         <div className="bg-white rounded-lg p-2 border border-gray-200">

@@ -247,6 +247,7 @@ class AIAnalysis(BaseModel):
     cover_letter_score: int
     completeness_score: int
     relevance_score: int
+    resume_score: int
     ai_summary: str
     strengths: List[str]
     concerns: List[str]
