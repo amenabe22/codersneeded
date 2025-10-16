@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     GCP_BUCKET_NAME: str = Field(default="coders-needed-resumes")
     GCP_PROJECT_ID: str = Field(default="")
     
+    # AI
+    GEMINI_API_KEY: str = Field(default="", validation_alias="GEMINI_API_KEY")
+    
     # App
     DEBUG: bool = True
     CORS_ORIGINS: list = ["*"]  # Allow all origins for Telegram Mini App

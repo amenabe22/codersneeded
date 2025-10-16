@@ -239,3 +239,23 @@ class TelegramWebAppData(BaseModel):
 
 class TelegramAuth(BaseModel):
     init_data: str
+
+
+# AI Analysis Schemas
+class AIAnalysis(BaseModel):
+    overall_score: int
+    cover_letter_score: int
+    completeness_score: int
+    relevance_score: int
+    ai_summary: str
+    strengths: List[str]
+    concerns: List[str]
+    recommendation: str
+
+
+class RankedApplication(BaseModel):
+    application: Application
+    ai_analysis: AIAnalysis
+    
+    class Config:
+        from_attributes = True

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Use localhost backend for development
-const API_BASE_URL = 'https://retain-authentication-albums-ranger.trycloudflare.com/api'
+const API_BASE_URL = 'https://protein-cargo-polo-ash.trycloudflare.com/api'
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -114,6 +114,22 @@ export interface Application {
   job?: Job
 }
 
+export interface AIAnalysis {
+  overall_score: number
+  cover_letter_score: number
+  completeness_score: number
+  relevance_score: number
+  ai_summary: string
+  strengths: string[]
+  concerns: string[]
+  recommendation: 'hire' | 'interview' | 'maybe' | 'pass' | 'review'
+}
+
+export interface RankedApplication {
+  application: Application
+  ai_analysis: AIAnalysis
+}
+
 export interface Notification {
   id: number
   user_id: number
@@ -215,6 +231,9 @@ export const applicationsApi = {
   
   getJobApplications: (jobId: number) => 
     api.get(`/applications/job/${jobId}`),
+  
+  getRankedJobApplications: (jobId: number) => 
+    api.get(`/applications/job/${jobId}/ranked`),
   
   updateApplication: (id: number, data: {
     status?: 'pending' | 'reviewed' | 'accepted' | 'rejected'

@@ -4,12 +4,13 @@ from typing import List
 from app.database import get_db
 from app.auth import get_current_user, require_roles
 from app.models import User, UserRole
-from app.schemas import Application, ApplicationCreate, ApplicationUpdate
+from app.schemas import Application, ApplicationCreate, ApplicationUpdate, RankedApplication
 from app.crud import (
     create_application, get_application, get_applications_by_job,
     get_applications_by_applicant, update_application
 )
 from app.storage import gcp_storage
+from app.ai_service import ai_analyzer
 import logging
 
 router = APIRouter()
@@ -94,6 +95,57 @@ async def get_job_applications(
     
     applications = get_applications_by_job(db, job_id)
     return applications
+
+
+@router.get("/job/{job_id}/ranked", response_model=List[RankedApplication])
+async def get_ranked_job_applications(
+    job_id: int,
+    current_user: User = Depends(require_roles([UserRole.EMPLOYER, UserRole.INDIVIDUAL])),
+    db: Session = Depends(get_db)
+):
+    """
+    Get AI-ranked applications for a specific job (only by job poster)
+    Uses Gemini AI to analyze and rank applicants by:
+    - Cover letter quality
+    - Application completeness  
+    - Overall fit for the role
+    """
+    # Verify the job belongs to current user
+    from app.crud import get_job
+    job = get_job(db, job_id)
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+    
+    if job.poster_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view applications for your own jobs"
+        )
+    
+    # Get all applications for this job
+    applications = get_applications_by_job(db, job_id)
+    
+    if not applications:
+        return []
+    
+    # Use AI to analyze and rank applicants
+    try:
+        ranked_results = ai_analyzer.analyze_applicants(
+            applications=applications,
+            job_title=job.title,
+            job_description=job.description,
+            job_requirements=job.requirements
+        )
+        return ranked_results
+    except Exception as e:
+        logger.error(f"AI ranking failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to analyze applications with AI"
+        )
 
 
 @router.put("/{application_id}", response_model=Application)

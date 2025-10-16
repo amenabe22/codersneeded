@@ -36,19 +36,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton(
             "Browse Jobs",
-            web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app")
+            web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app")
         )],
         [InlineKeyboardButton(
             "Post Job", 
-            web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/post-job")
+            web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/post-job")
         )],
         [InlineKeyboardButton(
             "My Jobs",
-            web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/my-jobs")
+            web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/my-jobs")
         )],
         [InlineKeyboardButton(
             "My Profile",
-            web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/profile")
+            web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/profile")
         )]
     ]
     
@@ -77,7 +77,7 @@ async def browse_jobs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /browse command"""
     keyboard = [[InlineKeyboardButton(
         "Browse Jobs",
-        web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app")
+        web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app")
     )]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -90,7 +90,7 @@ async def post_job(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /post command"""
     keyboard = [[InlineKeyboardButton(
         "Post New Job",
-        web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/post-job")
+        web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/post-job")
     )]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -103,7 +103,7 @@ async def my_jobs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /myjobs command"""
     keyboard = [[InlineKeyboardButton(
         "My Jobs",
-        web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/my-jobs")
+        web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/my-jobs")
     )]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -116,7 +116,7 @@ async def my_profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /profile command"""
     keyboard = [[InlineKeyboardButton(
         "My Profile",
-        web_app=WebAppInfo(url="https://ca34d2f44371.ngrok-free.app/profile")
+        web_app=WebAppInfo(url="https://c17937ec13a0.ngrok-free.app/profile")
     )]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
